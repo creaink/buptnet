@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>BuptNet</title>
+
+	<link rel="stylesheet" href="../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../css/bootstrap-switch.min.css">
+	<link rel="stylesheet" href="../css/popup.css">
+</head>
+
+<body>
+	<div id="container" class="center-block">
+
+		<div id="login-panel" style="display:none">
+			<div class="jumbotron">
+				<h1>北邮校园网登录</h1>
+			</div>
+			<div id="login-info" class="row">
+				<div class="col-xs-8 col-xs-offset-2">
+					<div class="input-group">
+						<span class="input-group-addon glyphicon glyphicon-user"></span>
+						<input type="text" class="form-control" id="username" placeholder="账号 Account">
+					</div>
+				</div>
+				<div class="col-xs-8 col-xs-offset-2">
+					<div class="input-group">
+						<span class="input-group-addon glyphicon glyphicon-lock"></span>
+						<input type="password" class="form-control" id="passwd" placeholder="密码 Password">
+					</div>
+				</div>
+
+				<div id="opt" class="col-xs-8 col-xs-offset-2">
+					<div class="form-inline">
+						<div class="btn-group">
+							<button type="buctton" id="btn-login" class="btn btn-primary ladda-button" data-style="zoom-out">登录</button>
+							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li><a id="a-savelogin" href="#">登陆后记录当前账号</a></li>
+								<li><a id="a-sulogin" href="#">登陆后首选当前账号</a></li>
+								<li class="divider"></li>
+								<li><a id="a-deluser" href="#">删除当前账号的纪录</a></li>
+							</ul>
+						</div>
+						<select class="form-control" id="user-list" ></select>
+					</div>
+					<div class="alert alert-danger" id="login-fail">fail</div>
+				</div>
+			</div>
+		<!-- end of login-pannel -->
+		</div>
+
+		<div id="fun-panel" style="display:none">
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs" role="tablist">
+				<li class="active"><a href="#tab-base" aria-controls="tab-base">基本</a></li>
+				<li><a href="#tab-dynamic" aria-controls="tab-dynamic">实时</a></li>
+				<li><a href="#tab-info" aria-controls="tab-info">信息</a></li>
+				<li><a href="#tab-setting" aria-controls="tab-setting">设置</a></li>
+				<li><a href="#tab-about" aria-controls="tab-about">关于</a></li>
+			</ul>
+
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<div class="tab-pane active" id="tab-base">
+					<div id="chart-flow"></div>
+					<div class="row">
+						<div class="col-xs-8">
+							<table class="table table-condensed table-bordered">
+								<tbody>
+									<tr class="success">
+										<th scope="row">账户余额</th>
+										<td class="base-remain">0 RMB</td>
+									</tr>
+									<tr class="info">
+										<th scope="row">使用时间</th>
+										<td class="base-time">0 min</td>
+									</tr>
+									<tr class="danger">
+										<th scope="row">剩余日均</th>
+										<td class="base-advice">0 MB/天</td>
+									</tr>
+									<tr class="warning">
+										<th scope="row">过往日均</th>
+										<td class="base-history">0 MB/天</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="col-xs-4" id="base-opt">
+							<button id="btn-refreshbase" class="btn btn-info">刷新数据</button>
+							<a target="_blank" href="#tabpage" class="btn btn-success">转标签页</a>							
+							<button id="btn-logoff" class="btn btn-danger">注销登录</button>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane" id="tab-dynamic">
+					<div id="chart-dynamic"></div>
+					<span>5秒段校外流量走势</span>
+					<button id="btn-cleardynamic" class="btn btn-info">清除图表</button>
+				</div>
+				<div class="tab-pane" id="tab-info">
+					<table class="table table-hover table-striped table-condensed">
+						<thead>
+							<tr class="info">
+								<th>类别</th>
+								<th>内容</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th scope="row">账号名</th>
+								<td class="info-username">你猜</td>
+							</tr>
+							<tr>
+								<th scope="row">内网地址</th>
+								<td class="info-iipv4">0.0.0.0</td>
+							</tr>
+							<tr>
+								<th scope="row">外网地址</th>
+								<td class="info-eipv4">0.0.0.0</td>
+							</tr>
+							<tr>
+								<th scope="row">IPV6地址</th>
+								<td class="info-ipv6">0:0:0:0:0:0</td>
+							</tr>
+							<tr>
+								<th scope="row">账户余额</th>
+								<td class="base-remain">0 RMB</td>
+							</tr>
+							<tr>
+								<th scope="row">当月网费</th>
+								<td class="info-cost">0 元</td>
+							</tr>
+							<tr>
+								<th scope="row">剩余流量</th>
+								<td class="info-remain">0 MB</td>
+							</tr>
+							<tr>
+								<th scope="row">已用流量</th>
+								<td class="info-used">0 MB</td>
+							</tr>
+							<tr>
+								<th scope="row">剩余日均</th>
+								<td class="base-advice">0 MB/天</td>
+							</tr>
+							<tr>
+								<th scope="row">过往日均</th>
+								<td class="base-history">0 MB/天</td>
+							</tr>
+							<tr>
+								<th scope="row">使用时间</th>
+								<td class="base-time">0 min</td>
+							</tr>
+							<tr>
+								<th scope="row">在线比率</th>
+								<td class="info-onlinerate">0 min</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="tab-pane" id="tab-setting">
+					<div class="switch switch-mini">
+						<span data-toggle="tooltip" data-placement="right" title="启动浏览器时登录首选">自动登录</span>
+						<input id="sw-auto" type="checkbox">
+					</div>
+					<div class="switch switch-mini">
+						<span data-toggle="tooltip" data-placement="right" title="重启浏览器后有效">监听登录页</span>
+						<input id="sw-listen" type="checkbox">
+					</div>
+					<div class="switch switch-mini">
+						<span data-toggle="tooltip" data-placement="right" title="记录流量走势">后台运行</span>						
+						<input id="sw-back" type="checkbox" >
+					</div>
+				</div>
+				<div class="tab-pane" id="tab-about">
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<h3 class="panel-title">Information</h3>
+						</div>
+						<div class="panel-body">
+							<b>版本</b> : 1.0<br>
+							<b>bbs id</b> : creaink<br>
+							<b>源代码</b> : <a target="_blank" href="https://github.com/creaink/buptnet">GitHub</a><br>
+						</div>
+					</div>
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<h3 class="panel-title">Navigation</h3>
+						</div>
+						<div class="panel-body">
+							<a target="_blank" href="http://bbs.byr.cn">北邮人bbs</a>
+							<a target="_blank" href="http://bt.byr.cn">北邮人bt</a>
+							<a target="_blank" href="http://tv.byr.cn">北邮人tv</a>
+							<a target="_blank" href="http://netaccount.bupt.edu.cn">北邮网络</a>
+							<a target="_blank" href="http://hdtv.neu6.edu.cn/">东大tv</a>
+						</div>
+						<!--<button id="btn-test" class="btn btn-info">测试</button>-->
+					</div> 
+				</div>
+
+			</div>
+		<!-- end of fun-pannel -->
+		</div>
+
+		<div class="row" id="error" style="display:none">
+			<div class="col-md-12">
+				<div class="error-template">
+					<h1>Oops!</h1>
+					<h2>404 Not Found</h2>
+					<hr>
+					<div class="error-details">
+						您当前尚未接入北邮校园网环境
+					</div>
+				</div>
+			</div>
+		<!-- end of 404 -->
+		</div>
+
+	</div>
+</body>
+<script src="../js/jquery-3.1.1.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/highcharts/highcharts.js"></script>
+<!--abandon https://github.com/msurguy/ladda-bootstrap-->
+<script src="../js/charts.js"></script>
+<script src="../js/bootstrap-switch.min.js"></script>
+<script src="../js/popup.js"></script>
+
+</html>

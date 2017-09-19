@@ -1,0 +1,86 @@
+h1{
+	text-align: center;
+	margin: 8px auto;
+	color: darkcyan;
+}
+#container {
+	width: 350px;
+  height: 440px;
+}
+
+#login-info {
+  margin-top: 45px;
+  margin-bottom: 10px;
+}
+#login-info >div{
+  margin-bottom: 15px;
+}
+
+#opt{
+  margin-top: 15px;
+}
+
+.input-group .glyphicon{
+  top: 0px;
+}
+
+#tab-base .row{
+  margin-top:10px;
+  padding-left: 5px;
+}
+
+#fun-panel{
+  padding: 5px;
+}
+
+#chart-flow{
+  width: 100%;
+  height: 260px;
+}
+#chart-dynamic{
+  width: 100%;  
+  height: 350px;
+}
+
+#base-opt>*{
+  margin-bottom: 6px;
+}
+#tab-dynamic span{
+ margin: 0 15px;
+}
+
+#tab-info, #tab-about{
+  padding: 12px 5px 0px 5px;
+}
+#tab-about .panel-info a{
+  margin: 0 5px;
+}
+
+#user-list {
+  display: inline-block;
+  width: 60%;
+}
+#login-fail{
+  margin: 10px auto;
+  display: none;
+}
+
+#tab-setting {
+  padding: 5px 15px;
+}
+
+.switch {
+  margin: 17px 0;
+}
+.switch > div{
+  float: right;
+}
+
+.table-condensed {
+  font-size: 13px;
+  margin-bottom: 0px;
+}
+
+.error-template {padding: 40px 15px;text-align: center;}
+.error-actions {margin-top:15px;margin-bottom:15px;}
+.error-actions .btn { margin-right:10px; }

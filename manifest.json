@@ -1,0 +1,24 @@
+{
+  "name":"buptnet",
+  "version":"1.0",
+  "description":"北邮校园网登录插件",
+
+  "permissions":[
+    "tabs","http://10.3.8.211/","http://pv.sohu.com/",
+    "storage",
+    "notifications"
+  ],
+
+  "icons": {"128": "icon/icon_off.png" },
+
+  "background":{
+	  "scripts": ["js/jquery-3.1.1.min.js", "js/background.js"]
+  },
+  "browser_action":{
+    "default_title":"小破邮校园网",
+    "default_icon":"icon/icon_off.png",
+    "default_popup":"html/popup.html"
+  },
+
+  "manifest_version":2
+}
