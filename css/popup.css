@@ -1,3 +1,7 @@
+html {
+    overflow: hidden;
+}
+
 h1{
 	text-align: center;
 	margin: 8px auto;
