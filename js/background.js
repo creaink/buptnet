@@ -42,9 +42,9 @@ bkpage.GetNetStatus = function (isLoad, setting){
 			var title = result.filter('title').get(0).innerText;
 
 			if (title == "上网注销窗"){
-				chrome.browserAction.setIcon({path:"../icon/icon_on.png"})
+                browser.browserAction.setIcon({path:"../icon/icon_on.png"})
 			} else if (title == "欢迎登录北邮校园网络"){
-				chrome.browserAction.setIcon({path:"../icon/icon_off.png"})
+                browser.browserAction.setIcon({path:"../icon/icon_off.png"})
 
 				if (isLoad == true){
 					setting = bkpage.GetSetting();
@@ -77,7 +77,7 @@ bkpage.Login = function (){
 	$.ajax({
 		type: "POST",
 		dataType: "html",	
-		url: "http://10.3.8.211//0.htm",
+		url: "http://10.3.8.211/0.htm",
 		//0MKKey也得提交
 		data: {'DDDDD':info.username,'upass':info.passwd, 'savePWD':'0','0MKKey':''},
 		success : function (result) {
@@ -88,7 +88,7 @@ bkpage.Login = function (){
 			if (title == "登录成功窗"){
 				bkpage.MakeNotice('自动登录成功\n登录账号:'+info.username);
 				localStorage.setItem('cuser', info.username);
-				chrome.browserAction.setIcon({path:"../icon/icon_on.png"})				
+                browser.browserAction.setIcon({path:"../icon/icon_on.png"})
 			} else{
 				bkpage.MakeNotice('自动登录失败\n没有设置首选账号或其账号密码错误');				
 			}
@@ -111,7 +111,7 @@ bkpage.Init = function(){
 		/**
 		 * 监听页面创建，检测校园网页面
 		 */
-		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+        browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			if (changeInfo.status == "complete"){
 				// if (tab.url == 'http://10.3.8.211/' && tab.title == "欢迎登录北邮校园网络"){
 				if (tab.url == 'http://10.3.8.211/' && tab.title == "上网注销窗"){
