@@ -112,7 +112,7 @@ buptnet.Script2Json = function (scriptStr){
 // 计算十进制下的显示版本
 buptnet.ConvertFlow = function(flow){
 	if (flow != null){
-		var flow, flow0, flow1, flow3;
+		var flow0, flow1, flow3;
 		flow0 = flow % 1024;
 		flow1 = flow - flow0;
 		flow0 = flow0 * 1000;
@@ -237,7 +237,7 @@ buptnet.CheckNetStatus = function(isAnnimate){
 			if (isAnnimate == true){
 				buptnet.SwPage();
 			}else if (isAnnimate == false){
-				buptnet.ChangePage(buptnet.state);
+				buptnet.ChangePage();
 			}
 			// 关闭登录按键禁止状态
 			buptnet.btnwait.stop();
@@ -284,6 +284,32 @@ buptnet.DelUser = function (username){
 		buptbase.log('无用户数据')
 	}
 }
+
+/**
+ * 删除首选账号
+ */
+buptnet.DelSuperUser = function () {
+    var super_user = {};
+    localStorage.setItem('su', JSON.stringify(super_user));
+};
+
+/**
+ * 获取首选账号
+ */
+buptnet.GetSuperUser = function () {
+    var super_user = localStorage.getItem('su');
+    var result = {};
+
+    if (super_user !== null) {
+        super_user = JSON.parse(super_user);
+        var key;
+        for (key in super_user)
+            result.username = key;
+        result.password = super_user[key];
+    }
+
+    return result;
+};
 
 /**
  * 设置首选账号
@@ -510,6 +536,8 @@ buptnet.onDelUser = function(){
 	//TODO 判断是空
 	var username = $("#user-list").find("option:selected").text();
 	buptnet.DelUser(username);
+	var super_user = buptnet.GetSuperUser();
+	if (super_user.username === username) buptnet.DelSuperUser();
 	buptnet.LoadUserList();
 	buptnet.SetLoginInfo('', '');
 }
@@ -565,8 +593,8 @@ buptnet.BindButton = function (params) {
 
 	//  $("#btn-test").click(function (){
 	// 	// badge
-	// 	// chrome.browserAction.setBadgeBackgroundColor({color:[0, 255, 0, 0]});
-	// 	// chrome.browserAction.setBadgeText({text:String(Hi)});
+	// 	// browser.browserAction.setBadgeBackgroundColor({color:[0, 255, 0, 0]});
+	// 	// browser.browserAction.setBadgeText({text:String(Hi)});
 	//  })
 }
 
@@ -737,7 +765,7 @@ buptnet.LoadAbout = function(){
  */
 buptnet.Init = function () {
 	// badge 背景色
-	chrome.browserAction.setBadgeBackgroundColor({color:[0, 0, 0, 0]})
+    browser.browserAction.setBadgeBackgroundColor({color:[0, 0, 0, 0]})
 	// 提示工具
 	$("[data-toggle='tooltip']").tooltip();
 	

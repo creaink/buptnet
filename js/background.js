@@ -114,7 +114,7 @@ bkpage.Init = function(){
 		/**
 		 * 监听页面创建，检测校园网页面
 		 */
-		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+        browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			if (changeInfo.status == "complete"){
 				// if (tab.url == 'http://10.3.8.211/' && tab.title == "欢迎登录北邮校园网络"){
 				if (tab.url == buptbase.urls.server && tab.title == "上网注销窗"){

@@ -192,7 +192,7 @@ buptchart.dynamic_set = function (x, y) {
 		buptchart.dynamic_current++;
 		var quene = true;
 		if (buptchart.dynamic_current < buptchart.dynamic_max) {
-			var quene = false;
+			quene = false;
 		}
 		buptchart.dynamic_chart.series[0].addPoint([x, y], true, quene, true);
 		buptchart.activeLastPointToolip(buptchart.dynamic_chart);
