@@ -3,7 +3,8 @@
 // TODO 减小代码冗余度, 提高可移植性
 // AngularJS ?
 
-var bgPage = chrome.extension.getBackgroundPage();
+
+buptbase.FitBrowser();
 
 // 在string原型链上添加全部添加
 String.prototype.replaceAll = function(s1,s2){
@@ -49,7 +50,7 @@ function getMyTime() {
 }
 function SaveData(data, filename){
 	if(!data) {
-		console.error('Console.save: No data');
+		buptbase.error('buptbase.save: No data');
 		return;
 	}
 
@@ -87,24 +88,9 @@ buptnet.state_last = 3;
 // 对应登录状态的可利用数据,详情见定义后的说明
 buptnet.state_data = {};
 
-
-buptnet.urls = {};
-buptnet.urls.server = 'http://10.3.8.211'
-//总是可以访问，返回的信息有ip
-buptnet.urls.login = '/0.htm'
-//根据状态返回登录或登录成功
-buptnet.urls.login_status = '/1.htm'
-//总是显示失败
-buptnet.urls.logfail = '/2.htm'
-//总是显示成功
-buptnet.urls.logsuccess = '/3.htm'
-//访问即注销
-buptnet.urls.logoff = '/F.htm'
-//外网ip查询api
-buptnet.urls.testip = 'http://pv.sohu.com/cityjson?ie=utf-8'
-
 buptnet.userdata = [];
-
+// 获取manifest配置
+buptnet.curManifest = chrome.runtime.getManifest();
 
 /**
  * 将字符串形式的JavaScript变量定义转成JSON数据
@@ -179,15 +165,15 @@ buptnet.SwPage = function(){
 				$('#fun-panel').fadeIn();
 			});
 			// 设置icon是相对地址，相对当前html或者js(background)
-			chrome.browserAction.setIcon({path:"../icon/icon_on.png"})
+			chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
 		} else {
 			$('#fun-panel').fadeOut(function(){
 				$('#login-panel').fadeIn();
 			})
-			chrome.browserAction.setIcon({path:"../icon/icon_off.png"})
+			chrome.browserAction.setIcon({path: buptbase.paths.icon_off});
 		}
 	}
-	console.log('switch');
+	buptbase.log('switch');
 }
 // 无动画的切换登录和登陆后的页面
 buptnet.ChangePage = function(){
@@ -196,14 +182,14 @@ buptnet.ChangePage = function(){
 		if (buptnet.state == 1){
 			$('#login-panel').hide();
 			$('#fun-panel').show();
-			chrome.browserAction.setIcon({path:"../icon/icon_on.png"})
+			chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
 		} else {
 			$('#login-panel').show();
 			$('#fun-panel').hide();
-			chrome.browserAction.setIcon({path:"../icon/icon_off.png"})
+			chrome.browserAction.setIcon({path: buptbase.paths.icon_off});
 		}
 	}
-	console.log('change');
+	buptbase.log('change');
 }
 
 // 获取一般情况下页面内嵌入的JavaScript变量
@@ -231,7 +217,7 @@ buptnet.CheckNetStatus = function(isAnnimate){
 		type : 'GET',
 		dataType : "html",
 		async : false,
-		url : buptnet.urls.server + buptnet.urls.login_status,
+		url : buptbase.urls.server + buptbase.urls.login_status,
 		success : function (result, status) {
 			// 获取页面标题判断账户状态
 			result = $(result);
@@ -240,10 +226,10 @@ buptnet.CheckNetStatus = function(isAnnimate){
 
 			if (title == "上网注销窗"){
 				buptnet.state = 1;
-				console.log("online");
+				buptbase.log("online");
 			} else if (title == "欢迎登录北邮校园网络"){
 				buptnet.state = 0;
-				console.log("offline");
+				buptbase.log("offline");
 			}
 			//获取响应页面参数
 			buptnet.state_data	= buptnet.GetScriptData(result);
@@ -258,7 +244,7 @@ buptnet.CheckNetStatus = function(isAnnimate){
 		},
 		error : function (data) {
 			buptnet.Ajaxfaild();
-			console.log('get state fail')
+			buptbase.log('get state fail')
 		}
 	})
 }
@@ -295,7 +281,7 @@ buptnet.DelUser = function (username){
 		delete user[username];
 		localStorage.setItem('user', JSON.stringify(user));
 	} else {
-		console.log('无用户数据')
+		buptbase.log('无用户数据')
 	}
 }
 
@@ -411,11 +397,11 @@ buptnet.Login = function () {
 	$.ajax({
 		type: "POST",
 		dataType: "html",
-		url: buptnet.urls.server + buptnet.urls.login,
+		url: buptbase.urls.server + buptbase.urls.login,
 		//0MKKey也得提交
 		data: {'DDDDD':info.username,'upass':info.passwd, 'savePWD':'0','0MKKey':''},
 		success : function (result) {
-			buptnet.CheckNetStatus(true);
+			buptnet.CheckNetStatus(false);
 
 			var rstr = result;
 			//json 的 "Gno":04报错(登录成功情况下)
@@ -429,7 +415,7 @@ buptnet.Login = function () {
 				var msga = rstr.split('msga=\'')[1].split('\'')[0];
 
 				buptnet.LoadLoginError(msg, msga);
-				console.log(msg,msga)
+				buptbase.log(msg,msga)
 			} else{
 				//清除错误信息，如果有的话
 				buptnet.LoadLoginError();
@@ -437,11 +423,11 @@ buptnet.Login = function () {
 				localStorage.setItem('cuser', info['UID']);
 			}
 
-			buptnet.LoadBaseTab();
+			buptnet.LoadBaseTab(false, false);
 		},
 		error : function (data) {
 			buptnet.Ajaxfaild();
-			console.log('login fail')
+			buptbase.log('login fail')
 		}
 	});
 }
@@ -450,13 +436,13 @@ buptnet.Login = function () {
  * 登录处理
  */
 buptnet.Logoff = function (){
-	$.get(buptnet.urls.server + buptnet.urls.logoff, function (result, status) {
+	$.get(buptbase.urls.server + buptbase.urls.logoff, function (result, status) {
 		//回到登录页面从新装载数据
 		buptnet.LoadLoginInfo();
 		buptnet.LoadUserList();
 		//更新状态
 		buptnet.CheckNetStatus(false);
-		console.log('logoff');
+		buptbase.log('logoff');
 	}, "html")
 }
 
@@ -492,7 +478,7 @@ buptnet.LoadLoginInfo = function(){
 	if (su != null){
 		for (var key in su){
 			buptnet.SetLoginInfo(key, su[key]);
-			console.log(key);
+			buptbase.log(key);
 		}
 	}
 }
@@ -635,7 +621,7 @@ buptnet.DynamicHandle = function(){
 	//计算差值流量
 	var y = buptnet.GetFlow() - buptnet.flow_last;
 	buptchart.dynamic_set(x, y);
-	console.log('timer');
+	buptbase.log('timer');
 }
 
 /**
@@ -646,11 +632,11 @@ buptnet.SetDynamic = function(isStart){
 	if (isStart && (buptnet.dynamic_thandle == null)){
 		buptchart.dynamic_set();
 		buptnet.dynamic_thandle = setInterval(buptnet.DynamicHandle, buptchart.dynamic_interval);
-		console.log('set timer')
+		buptbase.log('set timer')
 	} else if (isStart == false){
 		clearInterval(buptnet.dynamic_thandle);
 		buptnet.dynamic_thandle = null;
-		console.log('clear timer')
+		buptbase.log('clear timer')
 	}
 }
 
@@ -672,10 +658,12 @@ buptnet.BindTab = function (){
 			buptnet.LoadInfoTab();
 		} else if (href == "#tab-setting"){
 			buptnet.LoadSetting();
+		} else if (href == "#tab-about"){
+			buptnet.LoadAbout();
 		}
 
 		buptnet.SetDynamic(isStartTimer);
-		console.log('tab change');
+		buptbase.log('tab change');
 	})
 }
 
@@ -683,10 +671,11 @@ buptnet.BindTab = function (){
  * 装载基础/高级信息页面的数据
  * @param isEx false时基本页面，true时信息页面(部分
  */
-buptnet.LoadBaseTab = function (isEx) {
+buptnet.LoadBaseTab = function (isEx, isCheck) {
 	var remain, cost;
 
-	buptnet.CheckNetStatus(false);
+	if (isCheck == true || isCheck == undefined)
+		buptnet.CheckNetStatus(false);
 	var flow = buptnet.GetFlow();
 	var exFlow = buptnet.GetExFlow();
 	$('.base-remain').text(buptnet.state_data['fee']/10000 + ' 元');
@@ -726,17 +715,21 @@ buptnet.LoadInfoTab = function(){
 	buptnet.LoadBaseTab(true);
 
 	$('.info-username').text(localStorage.getItem('cuser'));
-	$.get(buptnet.urls.testip, function (result, status) {
+	$.get(buptbase.urls.testip, function (result, status) {
 		var ipv4 = result.split('= ')[1].replace(';','');
 		ipv4 = JSON.parse(ipv4);
 		$('.info-eipv4').text(ipv4['cip']);
 	}, "text");
-	$.get(buptnet.urls.server + buptnet.urls.login, function (result, status) {
+	$.get(buptbase.urls.server + buptbase.urls.login, function (result, status) {
 		var info  = buptnet.GetScriptData($(result))
 		$('.info-iipv4').text(info['v46ip']);
 		info = info['v6'].replace('[','').replace(']','');
 		$('.info-ipv6').text(info);
 	}, "text")
+}
+
+buptnet.LoadAbout = function(){
+	$('#version').text(buptnet.curManifest.version);
 }
 
 /**
@@ -768,7 +761,7 @@ function OnLoad() {
 
 	// 检查登录状态
 	if (buptnet.state == 0){
-		console.log('load');
+		buptbase.log('load');
 		buptnet.LoadLoginInfo();
 		buptnet.LoadUserList();
 	} else if (buptnet.state == 1){

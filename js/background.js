@@ -3,14 +3,17 @@
 //只有popup有实例时候才会有效
 // var popups = chrome.extension.getViews({type: "popup"});
 
+buptbase.FitBrowser();
+
 bkpage = {};
 
 bkpage.MakeNotice = function (str) {
-  var title = '北邮校园网';
-  var body = {
-	  	body: str,
-		icon: '../icon/icon_on.png'};
-  new Notification(title, body);
+  chrome.notifications.create({
+	"iconUrl": buptbase.paths.icon_on,
+	"type": "basic",
+	"title": "北邮校园网",
+	"message": str
+});
 }
 
 /**
@@ -35,16 +38,16 @@ bkpage.GetNetStatus = function (isLoad, setting){
 	$.ajax({
 		type : 'GET',
 		dataType : "html",
-		url : "http://10.3.8.211/1.htm", 
+		url: buptbase.urls.server + buptbase.urls.login_status,		
 		success : function (result, status) {
 			// 获取页面标题判断账户状态
 			result = $(result);
 			var title = result.filter('title').get(0).innerText;
 
 			if (title == "上网注销窗"){
-				chrome.browserAction.setIcon({path:"../icon/icon_on.png"})
+				chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
 			} else if (title == "欢迎登录北邮校园网络"){
-				chrome.browserAction.setIcon({path:"../icon/icon_off.png"})
+				chrome.browserAction.setIcon({path: buptbase.paths.icon_off});
 
 				if (isLoad == true){
 					setting = bkpage.GetSetting();
@@ -55,7 +58,7 @@ bkpage.GetNetStatus = function (isLoad, setting){
 			}
 		},
 		error : function (data) {
-			console.log('get state fail')
+			buptbase.log('get state fail')
 		}
 	})
 }
@@ -71,13 +74,13 @@ bkpage.Login = function (){
 		for (var key in su){
 			info.username = key;
 			info.passwd = su[key];
-			console.log(key);
+			buptbase.log(key);
 		}
 	}
 	$.ajax({
 		type: "POST",
 		dataType: "html",	
-		url: "http://10.3.8.211//0.htm",
+		url: buptbase.urls.server + buptbase.urls.login,
 		//0MKKey也得提交
 		data: {'DDDDD':info.username,'upass':info.passwd, 'savePWD':'0','0MKKey':''},
 		success : function (result) {
@@ -88,13 +91,13 @@ bkpage.Login = function (){
 			if (title == "登录成功窗"){
 				bkpage.MakeNotice('自动登录成功\n登录账号:'+info.username);
 				localStorage.setItem('cuser', info.username);
-				chrome.browserAction.setIcon({path:"../icon/icon_on.png"})				
+				chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
 			} else{
 				bkpage.MakeNotice('自动登录失败\n没有设置首选账号或其账号密码错误');				
 			}
 		},
 		error : function (data) {
-			console.log('auto-login fail')
+			buptbase.log('auto-login fail')
 		}
 	});
 }
@@ -114,8 +117,8 @@ bkpage.Init = function(){
 		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			if (changeInfo.status == "complete"){
 				// if (tab.url == 'http://10.3.8.211/' && tab.title == "欢迎登录北邮校园网络"){
-				if (tab.url == 'http://10.3.8.211/' && tab.title == "上网注销窗"){
-					console.log('auto')
+				if (tab.url == buptbase.urls.server && tab.title == "上网注销窗"){
+					buptbase.log('auto')
 					setting = bkpage.GetSetting();
 					if (true == setting['auto']){
 						alert('请使用buptnet插件');
