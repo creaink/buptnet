@@ -2,6 +2,7 @@
 
 // TODO 减小代码冗余度, 提高可移植性
 // AngularJS ?
+// typescipt ?
 
 
 buptbase.FitBrowser();
@@ -11,66 +12,8 @@ String.prototype.replaceAll = function(s1,s2){
 　　return this.replace(new RegExp(s1,"gm"),s2);
 };
 
-//计算一个月有多少天
-function getMonthDays(){
-    var curDate = new Date();
-    /* 获取当前月份 */
-    var curMonth = curDate.getMonth();
-    /*  生成实际的月份: 由于curMonth会比实际月份小1, 故需加1 */
-    curDate.setMonth(curMonth + 1);
-    /* 将日期设置为0*/
-    curDate.setDate(0);
-    /* 返回当月的天数 */
-    return curDate.getDate();
-}
 
-function getMyTime() {
-	var curDate = new Date();
-	var t={};
-	t.daysNow = curDate.getDate();
-	t.minuteSpend = (t.daysNow-1)*24*60 + curDate.getHours()*60 + curDate.getMinutes();
-	// 被当分母注意0值
-	if (t.minuteSpend == 0){
-		t.minuteSpend = 1;
-	}
-	/* 获取当前月份 */
-    var curMonth = curDate.getMonth();
-    /*  生成实际的月份: 由于curMonth会比实际月份小1, 故需加1 */
-    curDate.setMonth(curMonth + 1);
-    /* 将日期设置为0*/
-	curDate.setDate(0);
-	t.daysMonth = curDate.getDate();
-	t.daysLeft = t.daysMonth - t.daysNow;
-
-	// 被当分母注意0值
-	if (t.daysLeft == 0){
-		t.daysLeft = 1;
-	}
-    return t;
-}
-function SaveData(data, filename){
-	if(!data) {
-		buptbase.error('buptbase.save: No data');
-		return;
-	}
-
-	if(!filename) filename = 'data.json';
-
-	if(typeof data === "object"){
-		data = JSON.stringify(data, undefined, 4);
-	}
-
-	var blob = new Blob([data], {type: 'text/json',endings:'native'}),
-		e	= document.createEvent('MouseEvents'),
-		a	= document.createElement('a');
-
-	a.download = filename;
-	a.href = window.URL.createObjectURL(blob);
-	a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':');
-	e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-	a.dispatchEvent(e);
- };
-
+// 生成默认用户数据
 function GenDeUserdata() {
 	var userdata = {};
 	userdata.username = "";
@@ -89,8 +32,10 @@ buptnet.state_last = 3;
 buptnet.state_data = {};
 
 buptnet.userdata = [];
-// 获取manifest配置
-buptnet.curManifest = chrome.runtime.getManifest();
+// manifest配置
+buptnet.curManifest = {};
+
+buptnet.env = {};
 
 /**
  * 将字符串形式的JavaScript变量定义转成JSON数据
@@ -109,39 +54,20 @@ buptnet.Script2Json = function (scriptStr){
 	return JSON.parse(retStr);
 }
 
-// 计算十进制下的显示版本
-buptnet.ConvertFlow = function(flow){
-	if (flow != null){
-		var flow0, flow1, flow3;
-		flow0 = flow % 1024;
-		flow1 = flow - flow0;
-		flow0 = flow0 * 1000;
-		flow0 = flow0 - flow0 % 1024;
-		flow3 = '.';
-		if (flow0 / 1024 < 10){
-			flow3 = '.00';
-		} else {
-			if (flow0 / 1024 < 100) flow3 = '.0';
-		}
-		flow = flow1 / 1024 + flow3 + flow0 / 1024;
-		return parseFloat(flow);
-	}else{
-		return 0;
-	}
-}
+
 
 // 充值的流量，返回单位 MB
 buptnet.GetExFlow = function (){
 	var exFlow = buptnet.state_data['fee'];
 	// exFlow/10000=元，一元一GB
 	exFlow = parseInt(exFlow/10000*1024*1024);
-	return buptnet.ConvertFlow(exFlow);
+	return buptbase.ConvertFlow(exFlow);
 }
 
 // 已用流量，返回单位 MB
 buptnet.GetFlow = function (){
 	var flow = buptnet.state_data['flow'];
-	return buptnet.ConvertFlow(flow);
+	return buptbase.ConvertFlow(flow);
 }
 
 // 登录过程中禁止按钮
@@ -157,24 +83,6 @@ buptnet.btnwait.start = function(){
 }
 // buptnet.btnwait = Ladda.create(document.querySelector( '#btn-login'));
 
-// 带动画的切换登录和登陆后的页面
-buptnet.SwPage = function(){
-	if (buptnet.state_last != buptnet.state){
-		if (buptnet.state == 1){
-			$('#login-panel').fadeOut(function(){
-				$('#fun-panel').fadeIn();
-			});
-			// 设置icon是相对地址，相对当前html或者js(background)
-			chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
-		} else {
-			$('#fun-panel').fadeOut(function(){
-				$('#login-panel').fadeIn();
-			})
-			chrome.browserAction.setIcon({path: buptbase.paths.icon_off});
-		}
-	}
-	buptbase.log('switch');
-}
 // 无动画的切换登录和登陆后的页面
 buptnet.ChangePage = function(){
 	if (buptnet.state_last != buptnet.state){
@@ -210,9 +118,8 @@ buptnet.Ajaxfaild = function(){
 
 /**
  * 更新登录状态，获取状态数据，并完成相应动作
- * @param {*} isAnnimate true:动画切换(登录切换)false:强制非动画切换，不输入：无切换
  */
-buptnet.CheckNetStatus = function(isAnnimate){
+buptnet.CheckNetStatus = function(){
 	$.ajax({
 		type : 'GET',
 		dataType : "html",
@@ -233,18 +140,16 @@ buptnet.CheckNetStatus = function(isAnnimate){
 			}
 			//获取响应页面参数
 			buptnet.state_data	= buptnet.GetScriptData(result);
-			// 根据新状态切换页面
-			if (isAnnimate == true){
-				buptnet.SwPage();
-			}else if (isAnnimate == false){
-				buptnet.ChangePage();
-			}
-			// 关闭登录按键禁止状态
+
+			//切换页面
+			buptnet.ChangePage();
+
+			//关闭登录按键禁止状态
 			buptnet.btnwait.stop();
 		},
 		error : function (data) {
 			buptnet.Ajaxfaild();
-			buptbase.log('get state fail')
+			buptbase.log('get state fail');
 		}
 	})
 }
@@ -289,26 +194,26 @@ buptnet.DelUser = function (username){
  * 删除首选账号
  */
 buptnet.DelSuperUser = function () {
-    var super_user = {};
-    localStorage.setItem('su', JSON.stringify(super_user));
+	var super_user = {};
+	localStorage.setItem('su', JSON.stringify(super_user));
 };
 
 /**
  * 获取首选账号
  */
 buptnet.GetSuperUser = function () {
-    var super_user = localStorage.getItem('su');
-    var result = {};
+	var super_user = localStorage.getItem('su');
+	var result = {};
 
-    if (super_user !== null) {
-        super_user = JSON.parse(super_user);
-        var key;
-        for (key in super_user)
-            result.username = key;
-        result.password = super_user[key];
-    }
+	if (super_user !== null) {
+		super_user = JSON.parse(super_user);
+		var key;
+		for (key in super_user)
+			result.username = key;
+		result.password = super_user[key];
+	}
 
-    return result;
+	return result;
 };
 
 /**
@@ -352,7 +257,7 @@ buptnet.GetSetting = function(){
 	} else {
 		setting = {};
 	}
-	return setting
+	return setting;
 }
 
 /**
@@ -427,7 +332,7 @@ buptnet.Login = function () {
 		//0MKKey也得提交
 		data: {'DDDDD':info.username,'upass':info.passwd, 'savePWD':'0','0MKKey':''},
 		success : function (result) {
-			buptnet.CheckNetStatus(false);
+			buptnet.CheckNetStatus();
 
 			var rstr = result;
 			//json 的 "Gno":04报错(登录成功情况下)
@@ -441,7 +346,7 @@ buptnet.Login = function () {
 				var msga = rstr.split('msga=\'')[1].split('\'')[0];
 
 				buptnet.LoadLoginError(msg, msga);
-				buptbase.log(msg,msga)
+				buptbase.log(msg,msga);
 			} else{
 				//清除错误信息，如果有的话
 				buptnet.LoadLoginError();
@@ -449,11 +354,12 @@ buptnet.Login = function () {
 				localStorage.setItem('cuser', info['UID']);
 			}
 
+			//获得基础信息，已经check过不需要再次check更新
 			buptnet.LoadBaseTab(false, false);
 		},
 		error : function (data) {
 			buptnet.Ajaxfaild();
-			buptbase.log('login fail')
+			buptbase.log('login fail');
 		}
 	});
 }
@@ -467,7 +373,7 @@ buptnet.Logoff = function (){
 		buptnet.LoadLoginInfo();
 		buptnet.LoadUserList();
 		//更新状态
-		buptnet.CheckNetStatus(false);
+		buptnet.CheckNetStatus();
 		buptbase.log('logoff');
 	}, "html")
 }
@@ -584,18 +490,31 @@ buptnet.BindButton = function (params) {
 	});
 
 	$('#btn-refreshbase').click(function () {
-		buptnet.LoadBaseTab();
+		buptnet.LoadBaseTab(false, true);
 	 });
 
 	$('#btn-cleardynamic').click(function () {
 		buptchart.dynamic_set();
 	 });
 
-	//  $("#btn-test").click(function (){
-	// 	// badge
-	// 	// browser.browserAction.setBadgeBackgroundColor({color:[0, 255, 0, 0]});
-	// 	// browser.browserAction.setBadgeText({text:String(Hi)});
-	//  })
+	 $("#limit-item").click(function (item) {
+		var targetID = item.target.attributes.aim.value;
+		var num = $("#limit-num").val();
+		var target = $(targetID);
+
+		// 确认是非负的数值, 且小于100 000
+		if (parseInt(num) >= 0 && parseInt(num)<=100000) {
+			var rec = {}
+			rec[targetID] = num;
+			buptnet.SetSetting(rec);
+			target.text(num);
+			chrome.extension.getBackgroundPage().bkpage.RefreshSetting(true);
+		} else {
+			return;
+		}
+	 });
+	// 绑定，模态对话框
+	$('#myModal').on('shown.bs.modal', function () {});	
 }
 
 /**
@@ -607,32 +526,46 @@ buptnet.BindSwitch = function(){
 	$.fn.bootstrapSwitch.defaults.onColor = 'success';
 	
 	$('#sw-auto').bootstrapSwitch({
-        onSwitchChange:function(event,state){
-			buptnet.SetSetting({'auto':state})
-        }
+		onSwitchChange:function(event,state){
+			buptnet.SetSetting({'auto':state});
+		}
 	});
 	$('#sw-listen').bootstrapSwitch({
-        onSwitchChange:function(event,state){
-			buptnet.SetSetting({'listen':state})
-        }
-    });
+		onSwitchChange:function(event,state){
+			buptnet.SetSetting({'listen':state});
+		}
+	});
 	$('#sw-back').bootstrapSwitch({
-		disabled:true,
-        onSwitchChange:function(event,state){
-        }
-    });
+		onSwitchChange:function(event,state){
+			buptnet.SetSetting({'back':state});
+			$('#limit-input').find("*").prop("disabled", !state);
+		}
+	});
 }
+
 /**
  * 从localStorage装载设置到设置界面
  */
 buptnet.LoadSetting = function(){
 	var setting = buptnet.GetSetting();
 	$('#sw-auto').bootstrapSwitch(
-       'state',setting['auto']
+	   'state',setting['auto']
 	);
 	$('#sw-listen').bootstrapSwitch(
 		'state',setting['listen']
-    );
+	);
+	$('#sw-back').bootstrapSwitch(
+		'state',setting['back']
+	);
+	if (!setting['back']){
+		$('#limit-input').find("*").prop("disabled", true);		
+	}
+	//载入数值设置
+	for (var key in setting) {
+		if (key[0] == '#') {
+			$(key).text(setting[key]);
+		}
+	}
 }
 
 buptnet.dynamic_thandle = null;
@@ -660,11 +593,11 @@ buptnet.SetDynamic = function(isStart){
 	if (isStart && (buptnet.dynamic_thandle == null)){
 		buptchart.dynamic_set();
 		buptnet.dynamic_thandle = setInterval(buptnet.DynamicHandle, buptchart.dynamic_interval);
-		buptbase.log('set timer')
+		buptbase.log('set timer');
 	} else if (isStart == false){
 		clearInterval(buptnet.dynamic_thandle);
 		buptnet.dynamic_thandle = null;
-		buptbase.log('clear timer')
+		buptbase.log('clear timer');
 	}
 }
 
@@ -679,7 +612,7 @@ buptnet.BindTab = function (){
 		var isStartTimer = false;
 		var href = $(this).attr('href');
 		if (href == '#tab-base'){
-			buptnet.LoadBaseTab();
+			buptnet.LoadBaseTab(false, true);
 		} else if (href == '#tab-dynamic'){
 			isStartTimer = true;
 		} else if (href == '#tab-info'){
@@ -698,18 +631,19 @@ buptnet.BindTab = function (){
 /**
  * 装载基础/高级信息页面的数据
  * @param isEx false时基本页面，true时信息页面(部分
+ * @param isCheck 是否更新流量值
  */
 buptnet.LoadBaseTab = function (isEx, isCheck) {
 	var remain, cost;
 
-	if (isCheck == true || isCheck == undefined)
-		buptnet.CheckNetStatus(false);
+	if (isCheck == true)
+		buptnet.CheckNetStatus();
 	var flow = buptnet.GetFlow();
 	var exFlow = buptnet.GetExFlow();
 	$('.base-remain').text(buptnet.state_data['fee']/10000 + ' 元');
 	$('.base-time').text(buptnet.state_data['time'] + ' min');
 	
-	var now = getMyTime();
+	var now = buptbase.getMyTime();
 	if (flow > buptchart.free_flow){
 		remain = exFlow;
 		cost = ((flow - buptchart.free_flow)/1024).toFixed(2);
@@ -740,7 +674,8 @@ buptnet.LoadBaseTab = function (isEx, isCheck) {
  * 装载高级信息页面的数据
  */
 buptnet.LoadInfoTab = function(){
-	buptnet.LoadBaseTab(true);
+	// 刷新流量值
+	buptnet.LoadBaseTab(true, true);
 
 	$('.info-username').text(localStorage.getItem('cuser'));
 	$.get(buptbase.urls.testip, function (result, status) {
@@ -756,8 +691,12 @@ buptnet.LoadInfoTab = function(){
 	}, "text")
 }
 
+/**
+ * 装载关于页面的数据
+ */
 buptnet.LoadAbout = function(){
 	$('#version').text(buptnet.curManifest.version);
+	$('#use-env').text(buptnet.env.os + "  " + buptnet.env.browser + "  " +  buptnet.env.ver);
 }
 
 /**
@@ -765,10 +704,14 @@ buptnet.LoadAbout = function(){
  */
 buptnet.Init = function () {
 	// badge 背景色
-    browser.browserAction.setBadgeBackgroundColor({color:[0, 0, 0, 0]})
+	browser.browserAction.setBadgeBackgroundColor({color:[0, 0, 0, 0]})
 	// 提示工具
 	$("[data-toggle='tooltip']").tooltip();
-	
+	// 获取插件manifest配置和运行环境
+	buptnet.curManifest = chrome.runtime.getManifest();
+	buptnet.env =  buptbase.GetBrowserInfo();
+	// firefox的bug, 点击popup时候背景色变透明
+	chrome.browserAction.setBadgeBackgroundColor({color:"#4688F5"});
 }
 
 document.addEventListener("DOMContentLoaded",OnLoad);
@@ -781,7 +724,7 @@ function OnLoad() {
 	buptnet.Init();
 
 	// 获取登录状态
-	buptnet.CheckNetStatus(false);
+	buptnet.CheckNetStatus();
 
 	buptnet.BindButton();
 	buptnet.BindTab();
@@ -793,7 +736,7 @@ function OnLoad() {
 		buptnet.LoadLoginInfo();
 		buptnet.LoadUserList();
 	} else if (buptnet.state == 1){
-		buptnet.LoadBaseTab();
+		buptnet.LoadBaseTab(false, false);
 	}
 
 }

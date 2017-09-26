@@ -172,20 +172,85 @@
 						<span data-toggle="tooltip" data-placement="right" title="重启浏览器后有效">监听登录页</span>
 						<input id="sw-listen" type="checkbox">
 					</div>
-					<div class="switch switch-mini">
-						<span data-toggle="tooltip" data-placement="right" title="记录流量走势">后台运行</span>						
-						<input id="sw-back" type="checkbox" >
+
+					<div class="panel panel-primary" id="bk-setting">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<div class="switch switch-mini">
+									<span>后台运行</span>
+									<input id="sw-back" type="checkbox">
+								</div>
+							</div>
+						</div>
+						<div class="panel-body">
+							<div class="input-group" id="limit-input">
+								<div class="input-group-btn">
+									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">设置条目 <span class="caret"></span></button>
+									<ul class="dropdown-menu" id="limit-item">
+										<li><a aim="#num-rem">余量</a></li>
+										<li><a aim="#num-spe">段量</a></li>
+										<li><a aim="#num-day">日量</a></li>
+									</ul>
+								</div>
+								<input type="text" class="form-control" id="limit-num" data-toggle="tooltip" data-placement="top" title="范围0~100 000,间隔15min">
+								<span class="input-group-addon">MB</span>
+							</div>
+						</div>
+						<table class="table table-striped table-condensed">
+							<thead>
+								<tr class="info">
+									<th>条目</th>
+									<th>限值(为零则关)</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th scope="row">余量(剩余流量下限)</th>
+									<td id="num-rem">0</td>
+								</tr>
+								<tr>
+									<th scope="row">段量(间隔流量上限)</th>
+									<td id="num-spe">0</td>
+								</tr>
+								<tr>
+									<th scope="row">日量(计划日用上限)</th>
+									<td id="num-day">0</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</div>
 				<div class="tab-pane" id="tab-about">
 					<div class="panel panel-success">
 						<div class="panel-heading">
-							<h3 class="panel-title">Information</h3>
+							<div class="panel-title">
+							<span>Information</span>		
+							<span class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#myModal">支持我们</span>
+							</div>
 						</div>
 						<div class="panel-body">
-							<b>版本 : </b><span id="version"></span><br>
-							<b>bbs id</b> : creaink<br>
-							<b>源代码</b> : <a target="_blank" href="https://github.com/creaink/buptnet">GitHub</a><br>
+							<table>
+								<tr>
+									<th scope="row">版本</th>
+									<td>&nbsp;:&nbsp;<span id="version"></span></td>
+								</tr>
+								<tr>
+									<th scope="row">bbs id</th>
+									<td>&nbsp;:&nbsp;creaink</td>
+								</tr>
+								<tr>
+									<th scope="row">源代码</th>
+									<td>&nbsp;:&nbsp;<a target="_blank" href="https://github.com/creaink/buptnet">GitHub</a></td>
+								</tr>
+								<tr>
+									<th scope="row">感谢</th>
+									<td>&nbsp;:&nbsp;Midgard</td>
+								</tr>
+								<tr>
+									<th scope="row">环境</th>
+									<td>&nbsp;:&nbsp;<span id="use-env"></span></td>
+								</tr>
+							</table>
 						</div>
 					</div>
 					<div class="panel panel-info">
@@ -198,6 +263,7 @@
 							<a target="_blank" href="http://tv.byr.cn">北邮人tv</a>
 							<a target="_blank" href="http://netaccount.bupt.edu.cn">北邮网络</a>
 							<a target="_blank" href="http://hdtv.neu6.edu.cn/">东大tv</a>
+							<a target="_blank" href="https://mirrors.tuna.tsinghua.edu.cn/">清华镜像</a>
 						</div>
 						<!--<button id="btn-test" class="btn btn-info">测试</button>-->
 					</div> 
@@ -221,6 +287,22 @@
 		<!-- end of 404 -->
 		</div>
 
+	</div>
+
+	<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">使用支付宝赞助我们</h4>
+				</div>
+				<div class="modal-body">
+					<img class="center-block" src="../img/donate.gif" alt="donate link">
+					<div>支持我们的后续开发，众筹在chrome市场上架</div>
+				</div>
+			</div>
+		</div>
+	<!-- end of Modal donate -->
 	</div>
 </body>
 <script src="../js/jquery-3.1.1.min.js"></script>

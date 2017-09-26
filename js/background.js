@@ -7,6 +7,19 @@ buptbase.FitBrowser();
 
 bkpage = {};
 
+// 0:未登录，1:已登录
+bkpage.state = 0;
+// 当前流量
+bkpage.flow = 0;
+bkpage.flow_last = 0;
+// 剩余流量
+bkpage.flow_rem = 0;
+// 流量超标和计划超标标志位
+bkpage.isOverFlow = false;
+bkpage.isOverDay = false;
+
+bkpage.setting = {};
+
 bkpage.MakeNotice = function (str) {
   chrome.notifications.create({
 	"iconUrl": buptbase.paths.icon_on,
@@ -26,7 +39,18 @@ bkpage.GetSetting = function(){
 	} else {
 		setting = {};
 	}
-	return setting	
+	return setting;
+}
+/**
+ * 截取整形
+ * @param mstr 需要提取的字符串
+ * @param start 开始部分字符串
+ * @param end 结束部分字符串
+ */
+bkpage.subInt = function(mstr, start, end){
+	mstr = mstr.substring(mstr.indexOf(start), mstr.indexOf(end));
+	mstr = mstr.substring(mstr.indexOf("'")+1, mstr.lastIndexOf("'"));
+	return parseInt(mstr);
 }
 
 /**
@@ -34,31 +58,41 @@ bkpage.GetSetting = function(){
  * @param isLoad 未登录时是否根据设置自动登录
  * @param setting 当isload为true时候，用户配置 
  */
-bkpage.GetNetStatus = function (isLoad, setting){
+bkpage.GetNetStatus = function (isLoad, hfunc){
 	$.ajax({
 		type : 'GET',
 		dataType : "html",
 		url: buptbase.urls.server + buptbase.urls.login_status,		
 		success : function (result, status) {
 			// 获取页面标题判断账户状态
+			var retstr = result;
+			recc = retstr
 			result = $(result);
 			var title = result.filter('title').get(0).innerText;
-
 			if (title == "上网注销窗"){
 				chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
+				bkpage.state = 1;
+				bkpage.flow_last = bkpage.flow;
+				//计算当前流量和剩余流量
+				bkpage.flow = buptbase.ConvertFlow(bkpage.subInt(retstr, "flow='", ";fsele"));
+				bkpage.flow_rem = bkpage.subInt(retstr, "fee='", ";xsele");
+				bkpage.flow_rem = buptbase.ConvertFlow(bkpage.flow_rem/10000*1024*1024) + 20*1024 - bkpage.flow;
 			} else if (title == "欢迎登录北邮校园网络"){
 				chrome.browserAction.setIcon({path: buptbase.paths.icon_off});
-
+				bkpage.state = 0;
 				if (isLoad == true){
-					setting = bkpage.GetSetting();
-					if (true == setting['auto']){
+					if (true == bkpage.setting['auto']){
 						bkpage.Login();
 					}
 				}
 			}
+			// 再登录的情况下定时回调 hfunc
+			if (hfunc != undefined && bkpage.state == 1){
+				hfunc();
+			}
 		},
 		error : function (data) {
-			buptbase.log('get state fail')
+			buptbase.log('get state fail');
 		}
 	})
 }
@@ -97,36 +131,93 @@ bkpage.Login = function (){
 			}
 		},
 		error : function (data) {
-			buptbase.log('auto-login fail')
+			buptbase.log('auto-login fail');
 		}
 	});
 }
 
+/**
+ * 刷新设置
+ * @param isNowBack 是否立即检查
+ */
+bkpage.RefreshSetting = function(isNowBack){
+	bkpage.setting = bkpage.GetSetting();
+	bkpage.isOverFlow = false;
+	bkpage.isOverDay = false;
+	// 立即回调一次
+	if (isNowBack == true && bkpage.setting['back'] == true){
+		bkpage.GetNetStatus(false, bkpage.BackHandle);
+	}
+}
 
+/**
+ * 后台检查回调处理函数
+ */
+bkpage.BackHandle = function(){
+	var text;
+
+	// TODO 充值情况
+	if (bkpage.setting['#num-rem'] != 0 && bkpage.flow_rem < bkpage.setting['#num-rem']){
+		if (bkpage.isOverFlow == false){
+			bkpage.isOverFlow = true;
+			bkpage.MakeNotice('剩余流量预警\n现余流量低于' + bkpage.setting['#num-rem'] + "MB");
+		}
+		text = (bkpage.flow_rem/1024).toFixed(1);
+		chrome.browserAction.setBadgeText({text:text});
+	} else {
+		bkpage.isOverFlow = false;
+	}
+	// 时段流量预警
+	if (bkpage.setting['#num-spe'] != 0 
+	&& (bkpage.flow - bkpage.flow_last) > bkpage.setting['#num-spe']){
+		text = (bkpage.flow - bkpage.flow_last).toFixed(3);
+		text = "流量使用过快\n" + text + "MB > 设置值" + bkpage.setting['#num-spe'] + "MB";
+		bkpage.MakeNotice(text);
+	}
+	// 计划流量预警
+	if (bkpage.setting['#num-day'] != 0){
+		if (bkpage.isOverDay == false){
+			var now = buptbase.getMyTime();
+			bkpage.isOverDay = true;
+			if (bkpage.setting['#num-day']*now.daysMonth < bkpage.flow_rem){
+				bkpage.MakeNotice("今日用量超出计划\n" + "计划日用量:" + bkpage.setting['#num-day']);
+			}
+		}
+	}
+	
+	buptbase.log('Tback');
+}
+
+/**
+ * 本js文件初始化
+ */
 bkpage.Init = function(){
-	var setting = bkpage.GetSetting();
+	bkpage.RefreshSetting(false);
 
 	// 背景js初始化时候（即第一次打开浏览器时候）检查当前登录状态
 	// 并根据设置判断是否进行自动登录首选账号
-	bkpage.GetNetStatus(true, setting);
+	bkpage.GetNetStatus(true);
 
-	if (setting['listen'] == true){
-		/**
-		 * 监听页面创建，检测校园网页面
-		 */
+	if (bkpage.setting['listen'] == true){
+		
+		//监听页面创建，检测校园网页面
         browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			if (changeInfo.status == "complete"){
 				// if (tab.url == 'http://10.3.8.211/' && tab.title == "欢迎登录北邮校园网络"){
-				if (tab.url == buptbase.urls.server && tab.title == "上网注销窗"){
-					buptbase.log('auto')
-					setting = bkpage.GetSetting();
-					if (true == setting['auto']){
-						alert('请使用buptnet插件');
-					}
+				if (tab.url == buptbase.urls.server + '/'){
+					buptbase.log('listen')
+					alert('请使用buptnet插件');
 				}
 			}
 		});
 	}
+	//设置后台运行回调
+	if (bkpage.setting['back'] == true){
+		bkpage.GetNetStatus(false, bkpage.BackHandle);
+		setInterval(bkpage.GetNetStatus, 10*1000, false, bkpage.BackHandle);
+	}
+
+	chrome.browserAction.setBadgeBackgroundColor({color:"#4688F5"});
 }
 
 
