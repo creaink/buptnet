@@ -189,6 +189,39 @@ bkpage.BackHandle = function(){
 }
 
 /**
+ * 为右键菜单添加“在BT中搜索”的功能项
+ */
+bkpage.ContextMenusInit = function() {
+	var title = '使用BT搜索"%s"'; // 功能项标题
+	var contexts = ['selection']; // 功能项出现的上下文
+	// 功能项被点击后的处理函数
+	var handler = function (obj) {
+		var search = obj.selectionText;
+		search = encodeURIComponent(search);
+		var href = 'http://bt.byr.cn/torrents.php?secocat=&cat=&incldead=0&spstate=0&inclbookmarked=0&search=' + search + '&search_area=0&search_mode=0';
+		var tabProperties = {
+			url: href,
+			active: true
+		};
+
+		chrome.tabs.create(tabProperties, function () {
+			console.log('搜索 ' + search + ' 已跳转.');
+		});
+	};
+	// 添加菜单项的相关设置
+	var properties = {
+		title: title,
+		contexts: contexts,
+		onclick: handler
+	};
+
+	// 在右键菜单中添加此功能项
+	chrome.contextMenus.create(properties, function () {
+		console.log('context menu item has been added.');
+	});
+};
+
+/**
  * 本js文件初始化
  */
 bkpage.Init = function(){
@@ -218,6 +251,8 @@ bkpage.Init = function(){
 	}
 
 	chrome.browserAction.setBadgeBackgroundColor({color:"#4688F5"});
+
+	bkpage.ContextMenusInit();
 }
 
 

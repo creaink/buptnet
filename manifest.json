@@ -5,9 +5,12 @@
   "description":"北邮校园网登录插件",
 
   "permissions":[
-    "tabs","http://10.3.8.211/","http://pv.sohu.com/",
+    "tabs",
+    "http://10.3.8.211/",
+    "http://pv.sohu.com/",
     "storage",
-    "notifications"
+    "notifications",
+    "contextMenus"
   ],
 
   "icons": {"128": "icon/icon_off.png" },
