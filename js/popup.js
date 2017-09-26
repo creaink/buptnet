@@ -4,6 +4,15 @@
 // AngularJS ?
 // typescipt ?
 
+/* 
+background 改成非永久? http://blog.csdn.net/fkepgydhbyuan/article/details/53316321
+自动登录设置点击有点问题
+版本提示？ https://raw.githubusercontent.com/creaink/buptnet/master/manifest.json
+popup瘦身
+设置界面美化
+改成15min
+opera、Safari
+*/
 
 buptbase.FitBrowser();
 
