@@ -4,16 +4,6 @@
 // AngularJS ?
 // typescipt ?
 
-/* 
-background 改成非永久? http://blog.csdn.net/fkepgydhbyuan/article/details/53316321
-自动登录设置点击有点问题
-版本提示？ https://raw.githubusercontent.com/creaink/buptnet/master/manifest.json
-popup瘦身
-设置界面美化
-改成15min
-opera、Safari
-*/
-
 buptbase.FitBrowser();
 
 // 在string原型链上添加全部添加
@@ -245,10 +235,10 @@ buptnet.SetSetting = function(params){
 	// 第一次运行，添加该项
 	if (setting == null){
 		localStorage.setItem('setting', JSON.stringify({}));
-		setting = {'auto':true, 'background':false};
+		setting = {'auto':false, 'listen':false, 'back':false};
+	} else {
+		setting = JSON.parse(setting);
 	}
-
-	setting = JSON.parse(setting);
 	for (var key in params){
 		setting[key] = params[key];
 	}
@@ -402,7 +392,7 @@ buptnet.GetLoginInfo = function(){
 /**
  * 设置登录界面的用户和密码
  * @param username 用户名字符串
- * @param passwd 密码字符串 
+ * @param passwd 密码字符串
  */
 buptnet.SetLoginInfo = function(username, passwd){
 	//TODO 参数检查
@@ -523,7 +513,7 @@ buptnet.BindButton = function (params) {
 		}
 	 });
 	// 绑定，模态对话框
-	$('#myModal').on('shown.bs.modal', function () {});	
+	$('#myModal').on('shown.bs.modal', function () {});
 }
 
 /**
@@ -533,7 +523,7 @@ buptnet.BindSwitch = function(){
 	//全局switch设置
 	$.fn.bootstrapSwitch.defaults.size = 'small';
 	$.fn.bootstrapSwitch.defaults.onColor = 'success';
-	
+
 	$('#sw-auto').bootstrapSwitch({
 		onSwitchChange:function(event,state){
 			buptnet.SetSetting({'auto':state});
@@ -567,7 +557,7 @@ buptnet.LoadSetting = function(){
 		'state',setting['back']
 	);
 	if (!setting['back']){
-		$('#limit-input').find("*").prop("disabled", true);		
+		$('#limit-input').find("*").prop("disabled", true);
 	}
 	//载入数值设置
 	for (var key in setting) {
@@ -651,7 +641,7 @@ buptnet.LoadBaseTab = function (isEx, isCheck) {
 	var exFlow = buptnet.GetExFlow();
 	$('.base-remain').text(buptnet.state_data['fee']/10000 + ' 元');
 	$('.base-time').text(buptnet.state_data['time'] + ' min');
-	
+
 	var now = buptbase.getMyTime();
 	if (flow > buptchart.free_flow){
 		remain = exFlow;

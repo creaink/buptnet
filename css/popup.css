@@ -43,7 +43,7 @@ h1 {
   height: 260px;
 }
 #chart-dynamic {
-  width: 100%;  
+  width: 100%;
   height: 350px;
 }
 
@@ -54,9 +54,10 @@ h1 {
  margin: 0 15px;
 }
 
-#tab-info, #tab-about {
+#tab-info, #tab-setting, #tab-about {
   padding: 12px 5px 0px 5px;
 }
+
 #tab-about .panel-info a {
   margin: 0 5px;
 }
@@ -71,29 +72,33 @@ h1 {
   display: none;
 }
 
-#tab-setting {
-  padding: 5px 15px;
+#tab-setting .panel-body{
+  padding: 8px 15px;
 }
 
-.switch {
-  margin: 17px 0;
+#bs-setting td > div{
+  margin: 2px auto;
 }
 
-.switch > div{
+#bk-setting .switch > div{
   float: right;
-}
-
-.panel-title > .switch {
   margin: -5px 0 0 0;
 }
 
-#bk-setting {
-  margin-top: 25px;
+#bs-setting > .panel-heading{
+  background-color: #5e81b5;
+}
+
+#bs-setting {
+  border-color: #5e81b5;
 }
 
 #bk-setting > .panel-heading{
-  background-color: #5e81b5;
-  border-color: #5e81b5;
+  background-color: #905e93;
+}
+
+#bk-setting{
+  border-color: #905e93;
 }
 
 .table-condensed {

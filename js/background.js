@@ -56,13 +56,13 @@ bkpage.subInt = function(mstr, start, end){
 /**
  * buptnet.CheckNetStatus简化版，在打开浏览器的时候检查网络
  * @param isLoad 未登录时是否根据设置自动登录
- * @param setting 当isload为true时候，用户配置 
+ * @param setting 当isload为true时候，用户配置
  */
 bkpage.GetNetStatus = function (isLoad, hfunc){
 	$.ajax({
 		type : 'GET',
 		dataType : "html",
-		url: buptbase.urls.server + buptbase.urls.login_status,		
+		url: buptbase.urls.server + buptbase.urls.login_status,
 		success : function (result, status) {
 			// 获取页面标题判断账户状态
 			var retstr = result;
@@ -113,7 +113,7 @@ bkpage.Login = function (){
 	}
 	$.ajax({
 		type: "POST",
-		dataType: "html",	
+		dataType: "html",
 		url: buptbase.urls.server + buptbase.urls.login,
 		//0MKKey也得提交
 		data: {'DDDDD':info.username,'upass':info.passwd, 'savePWD':'0','0MKKey':''},
@@ -127,7 +127,7 @@ bkpage.Login = function (){
 				localStorage.setItem('cuser', info.username);
 				chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
 			} else{
-				bkpage.MakeNotice('自动登录失败\n没有设置首选账号或其账号密码错误');				
+				bkpage.MakeNotice('自动登录失败\n没有设置首选账号或其账号密码错误');
 			}
 		},
 		error : function (data) {
@@ -166,9 +166,10 @@ bkpage.BackHandle = function(){
 		chrome.browserAction.setBadgeText({text:text});
 	} else {
 		bkpage.isOverFlow = false;
+		chrome.browserAction.setBadgeText({text:''});		
 	}
 	// 时段流量预警
-	if (bkpage.setting['#num-spe'] != 0 
+	if (bkpage.setting['#num-spe'] != 0
 	&& (bkpage.flow - bkpage.flow_last) > bkpage.setting['#num-spe']){
 		text = (bkpage.flow - bkpage.flow_last).toFixed(3);
 		text = "流量使用过快\n" + text + "MB > 设置值" + bkpage.setting['#num-spe'] + "MB";
@@ -184,7 +185,7 @@ bkpage.BackHandle = function(){
 			}
 		}
 	}
-	
+
 	buptbase.log('Tback');
 }
 
@@ -205,7 +206,7 @@ bkpage.ContextMenusInit = function() {
 		};
 
 		chrome.tabs.create(tabProperties, function () {
-			console.log('搜索 ' + search + ' 已跳转.');
+			buptbase.log('搜索 ' + search + ' 已跳转.');
 		});
 	};
 	// 添加菜单项的相关设置
@@ -217,7 +218,7 @@ bkpage.ContextMenusInit = function() {
 
 	// 在右键菜单中添加此功能项
 	chrome.contextMenus.create(properties, function () {
-		console.log('context menu item has been added.');
+		buptbase.log('context menu item has been added.');
 	});
 };
 
@@ -232,7 +233,7 @@ bkpage.Init = function(){
 	bkpage.GetNetStatus(true);
 
 	if (bkpage.setting['listen'] == true){
-		
+
 		//监听页面创建，检测校园网页面
         browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			if (changeInfo.status == "complete"){
@@ -247,7 +248,7 @@ bkpage.Init = function(){
 	//设置后台运行回调
 	if (bkpage.setting['back'] == true){
 		bkpage.GetNetStatus(false, bkpage.BackHandle);
-		setInterval(bkpage.GetNetStatus, 10*1000, false, bkpage.BackHandle);
+		setInterval(bkpage.GetNetStatus, 15*60*1000, false, bkpage.BackHandle);
 	}
 
 	chrome.browserAction.setBadgeBackgroundColor({color:"#4688F5"});

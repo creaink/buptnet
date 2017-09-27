@@ -93,7 +93,7 @@
 						</div>
 						<div class="col-xs-4" id="base-opt">
 							<button id="btn-refreshbase" class="btn btn-info">刷新数据</button>
-							<a target="_blank" href="#tabpage" class="btn btn-success">转标签页</a>							
+							<a target="_blank" href="#tabpage" class="btn btn-success">转标签页</a>
 							<button id="btn-logoff" class="btn btn-danger">注销登录</button>
 						</div>
 					</div>
@@ -164,21 +164,31 @@
 					</table>
 				</div>
 				<div class="tab-pane" id="tab-setting">
-					<div class="switch switch-mini">
-						<span data-toggle="tooltip" data-placement="right" title="启动浏览器时登录首选">自动登录</span>
-						<input id="sw-auto" type="checkbox">
+					<div class="panel panel-primary" id="bs-setting">
+						<div class="panel-heading">
+							<h3 class="panel-title">基础设置</h3>
+						</div>
+						<div class="panel-body">
+							<table style="width:100%;">
+								<tbody>
+									<tr>
+										<th scope="row"><span data-toggle="tooltip" data-placement="right" title="启动浏览器时登录首选">自动登录</span></th>
+										<td align="right"><input id="sw-auto" type="checkbox"></td>
+									</tr>
+									<tr>
+										<th scope="row"><span data-toggle="tooltip" data-placement="right" title="重启浏览器后有效">监听登录页</span></th>
+										<td align="right"><input id="sw-listen" type="checkbox"></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
-					<div class="switch switch-mini">
-						<span data-toggle="tooltip" data-placement="right" title="重启浏览器后有效">监听登录页</span>
-						<input id="sw-listen" type="checkbox">
-					</div>
-
 					<div class="panel panel-primary" id="bk-setting">
 						<div class="panel-heading">
 							<div class="panel-title">
 								<div class="switch switch-mini">
 									<span>后台运行</span>
-									<input id="sw-back" type="checkbox">
+									<input class="pull-right" id="sw-back" type="checkbox">
 								</div>
 							</div>
 						</div>
@@ -224,7 +234,7 @@
 					<div class="panel panel-success">
 						<div class="panel-heading">
 							<div class="panel-title">
-							<span>Information</span>		
+							<span>Information</span>
 							<span class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#myModal">支持我们</span>
 							</div>
 						</div>
@@ -266,7 +276,7 @@
 							<a target="_blank" href="https://mirrors.tuna.tsinghua.edu.cn/">清华镜像</a>
 						</div>
 						<!--<button id="btn-test" class="btn btn-info">测试</button>-->
-					</div> 
+					</div>
 				</div>
 
 			</div>
@@ -308,7 +318,6 @@
 <script src="../js/jquery-3.1.1.min.js"></script>
 <script src="../js/bootstrap.min.js"></script>
 <script src="../js/highcharts/highcharts.js"></script>
-<!--abandon https://github.com/msurguy/ladda-bootstrap-->
 <script src="../js/base.js"></script>
 <script src="../js/charts.js"></script>
 <script src="../js/bootstrap-switch.min.js"></script>
