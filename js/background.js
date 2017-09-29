@@ -86,7 +86,7 @@ bkpage.GetNetStatus = function (isLoad, hfunc){
 					}
 				}
 			}
-			// 再登录的情况下定时回调 hfunc
+			// 在登录的情况下定时回调 hfunc
 			if (hfunc != undefined && bkpage.state == 1){
 				hfunc();
 			}
@@ -126,6 +126,8 @@ bkpage.Login = function (){
 				bkpage.MakeNotice('自动登录成功\n登录账号:'+info.username);
 				localStorage.setItem('cuser', info.username);
 				chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
+				// 自动登录成功第一次获取flow数据，到处调补bug，可以考虑一个好的结构来解决
+				bkpage.GetNetStatus(false, bkpage.BackHandle);
 			} else{
 				bkpage.MakeNotice('自动登录失败\n没有设置首选账号或其账号密码错误');
 			}
@@ -168,9 +170,10 @@ bkpage.BackHandle = function(){
 		bkpage.isOverFlow = false;
 		chrome.browserAction.setBadgeText({text:''});		
 	}
-	// 时段流量预警
+	// 时段流量预警，bkpage.flow_last==0为漏掉第一次记录流量
 	if (bkpage.setting['#num-spe'] != 0
-	&& (bkpage.flow - bkpage.flow_last) > bkpage.setting['#num-spe']){
+	&& (bkpage.flow - bkpage.flow_last) > bkpage.setting['#num-spe']
+	&& bkpage.flow_last != 0){
 		text = (bkpage.flow - bkpage.flow_last).toFixed(3);
 		text = "流量使用过快\n" + text + "MB > 设置值" + bkpage.setting['#num-spe'] + "MB";
 		bkpage.MakeNotice(text);
@@ -247,6 +250,7 @@ bkpage.Init = function(){
 	}
 	//设置后台运行回调
 	if (bkpage.setting['back'] == true){
+		// 第一次获取flow数据
 		bkpage.GetNetStatus(false, bkpage.BackHandle);
 		setInterval(bkpage.GetNetStatus, 15*60*1000, false, bkpage.BackHandle);
 	}
