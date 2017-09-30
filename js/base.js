@@ -30,6 +30,10 @@ buptbase.urls.logsuccess = '/3.htm'
 buptbase.urls.logoff = '/F.htm'
 //外网ip查询api
 buptbase.urls.testip = 'http://pv.sohu.com/cityjson?ie=utf-8'
+//接入BUPT-portal时候的校园网网关，登录后即接入校园网
+//但还需经过buptbase.urls.server才能访问外网
+buptbase.urls.portal_server = 'http://10.3.8.214'
+buptbase.urls.portal_serverin = 'http://10.3.8.214/login'
 
 // debug console输出开关
 buptbase.debug = true;
@@ -109,7 +113,10 @@ buptbase.SaveData = function(data, filename){
     return br;
 }
 
-// 计算十进制下的显示版本
+/**
+ * 计算十进制下的显示版本
+ * @param flow 原始数据十进制下的存储版本
+ */
 buptbase.ConvertFlow = function(flow){
 	if (flow != null){
 		var flow0, flow1, flow3;
@@ -159,4 +166,24 @@ buptbase.getMyTime = function() {
 		t.daysLeft = 1;
 	}
 	return t;
+}
+
+/**
+ * 处理截取返回字符串str中start和end中的内容，如果为标签则传入start即可
+ * @param str 需要处理的字符串
+ * @param start 开头字符串，可以与end重复
+ * @param end 结束字符串，未传参默认当做<>补充/
+ * @return 截取的中间字符串
+ */
+buptbase.GetInner = function(str, start, end){
+	var pos = 0;
+	if (end == undefined){
+		var end = start.replace('<', '</');
+	}
+	if (end == start){
+		pos = str.indexOf(start);
+		return str.substring(pos, str.indexOf(end, pos + 1)).replace(start,'');
+	}else{
+		return str.substring(str.indexOf(start), str.indexOf(end)).replace(start,'');
+	}
 }

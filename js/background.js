@@ -20,6 +20,10 @@ bkpage.isOverDay = false;
 
 bkpage.setting = {};
 
+/**
+ * 创建并弹出一个notifications
+ * @param str 显示字符串的内容
+ */
 bkpage.MakeNotice = function (str) {
   chrome.notifications.create({
 	"iconUrl": buptbase.paths.icon_on,
@@ -54,6 +58,49 @@ bkpage.subInt = function(mstr, start, end){
 }
 
 /**
+ * 获取首选账号，与popup.js重复
+ */
+bkpage.GetSuperUser = function(){
+	var super_user = localStorage.getItem('su');
+	var result = {};
+
+	if (super_user !== null) {
+		super_user = JSON.parse(super_user);
+		var key;
+		for (key in super_user)
+			result.username = key;
+		result.password = super_user[key];
+	}
+
+	return result;
+}
+
+/**
+ * 尝试登录接入校园网(BUPT=poral)
+ */
+bkpage.TryPortal = function(){
+	var su = bkpage.GetSuperUser();
+	if (su.username){
+		$.ajax({
+			type: "POST",
+			dataType: "html",
+			url: buptbase.urls.portal_serverin,
+			data: {'user':su.username,'pass':su.password},
+			success : function (result) {
+				buptbase.log("bk: in portal");
+				// 再一次尝试自动登录
+				bkpage.GetNetStatus(true, undefined);
+			},
+			error : function (data) {
+				buptbase.log("bk: out portal");
+			}
+		});
+	} else {
+		buptbase.log("bk: out portal");
+	}
+}
+
+/**
  * buptnet.CheckNetStatus简化版，在打开浏览器的时候检查网络
  * @param isLoad 未登录时是否根据设置自动登录
  * @param setting 当isload为true时候，用户配置
@@ -66,9 +113,7 @@ bkpage.GetNetStatus = function (isLoad, hfunc){
 		success : function (result, status) {
 			// 获取页面标题判断账户状态
 			var retstr = result;
-			recc = retstr
-			result = $(result);
-			var title = result.filter('title').get(0).innerText;
+			var title = buptbase.GetInner(retstr, '<title>');
 			if (title == "上网注销窗"){
 				chrome.browserAction.setIcon({path: buptbase.paths.icon_on});
 				bkpage.state = 1;
@@ -84,6 +129,14 @@ bkpage.GetNetStatus = function (isLoad, hfunc){
 					if (true == bkpage.setting['auto']){
 						bkpage.Login();
 					}
+				}
+			} else if (title == "北京邮电大学无线网准入认证\n") {
+				// portal时候的重定向
+				chrome.browserAction.setIcon({path: buptbase.paths.icon_off});				
+				bkpage.state = 0;
+				if(noTry == undefined && true == bkpage.setting['auto']){
+					bkpage.TryPortal();
+					buptbase.log("try")
 				}
 			}
 			// 在登录的情况下定时回调 hfunc
@@ -101,27 +154,18 @@ bkpage.GetNetStatus = function (isLoad, hfunc){
  * 登录首选账号
  */
 bkpage.Login = function (){
-	var info = {};
+	var info = bkpage.GetSuperUser();
 
-	var su = JSON.parse(localStorage.getItem('su'));
-	if (su != null){
-		for (var key in su){
-			info.username = key;
-			info.passwd = su[key];
-			buptbase.log(key);
-		}
-	}
+	buptbase.log(info.username);
+
 	$.ajax({
 		type: "POST",
 		dataType: "html",
 		url: buptbase.urls.server + buptbase.urls.login,
 		//0MKKey也得提交
-		data: {'DDDDD':info.username,'upass':info.passwd, 'savePWD':'0','0MKKey':''},
+		data: {'DDDDD':info.username,'upass':info.password, 'savePWD':'0','0MKKey':''},
 		success : function (result) {
-
-			result = $(result);
-			var title = result.filter('title').get(0).innerText;
-
+			var title = buptbase.GetInner(result, '<title>');			
 			if (title == "登录成功窗"){
 				bkpage.MakeNotice('自动登录成功\n登录账号:'+info.username);
 				localStorage.setItem('cuser', info.username);

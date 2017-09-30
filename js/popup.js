@@ -11,16 +11,6 @@ String.prototype.replaceAll = function(s1,s2){
 　　return this.replace(new RegExp(s1,"gm"),s2);
 };
 
-
-// 生成默认用户数据
-function GenDeUserdata() {
-	var userdata = {};
-	userdata.username = "";
-	userdata.passwd = "";
-	userdata.flow = [];
-	return userdata;
-}
-
 buptnet = {};
 
 // 0:未登录，1:已登录
@@ -43,7 +33,7 @@ buptnet.env = {};
 buptnet.Script2Json = function (scriptStr){
 	var retStr = [];
 
-	scriptStr= scriptStr.replaceAll(';','\n').replaceAll('\'','\"');
+	scriptStr = scriptStr.replaceAll(';','\n').replaceAll('\'','\"');
 	scriptStr = scriptStr.match(/.+/g);
 	scriptStr.forEach(function(element) {
 		retStr.push(element.replace(/([\w_]+)=(.*)/,"\"$1\":$2"));
@@ -53,9 +43,9 @@ buptnet.Script2Json = function (scriptStr){
 	return JSON.parse(retStr);
 }
 
-
-
-// 充值的流量，返回单位 MB
+/**
+ * 充值的流量，返回单位 MB
+ */
 buptnet.GetExFlow = function (){
 	var exFlow = buptnet.state_data['fee'];
 	// exFlow/10000=元，一元一GB
@@ -63,7 +53,9 @@ buptnet.GetExFlow = function (){
 	return buptbase.ConvertFlow(exFlow);
 }
 
-// 已用流量，返回单位 MB
+/**
+ * 已用流量，返回单位 MB
+ */
 buptnet.GetFlow = function (){
 	var flow = buptnet.state_data['flow'];
 	return buptbase.ConvertFlow(flow);
@@ -80,9 +72,10 @@ buptnet.btnwait.start = function(){
 	buptnet.btnwait.btn.text('ing...');
 	buptnet.btnwait.btn.attr('disabled','disabled');
 }
-// buptnet.btnwait = Ladda.create(document.querySelector( '#btn-login'));
 
-// 无动画的切换登录和登陆后的页面
+/**
+ * 无动画的切换登录和登陆后的页面
+ */
 buptnet.ChangePage = function(){
 	if (buptnet.state_last != buptnet.state){
 
@@ -99,7 +92,10 @@ buptnet.ChangePage = function(){
 	buptbase.log('change');
 }
 
-// 获取一般情况下页面内嵌入的JavaScript变量
+/**
+ * 获取一般情况下页面内嵌入的JavaScript变量
+ * @param jqObj 返回的页面的化后的jQuery对象
+ */
 buptnet.GetScriptData = function(jqObj){
 	// 获取页面内script参数
 	var data = jqObj.filter('script').get(0).innerText;
@@ -108,10 +104,63 @@ buptnet.GetScriptData = function(jqObj){
 	return buptnet.Script2Json(data);
 }
 
+/**
+ * 检查是否为BUPT-portal环境
+ */
+buptnet.BUPT_portal_Check  = function(){
+	$.ajax({
+		type: "GET",
+		dataType: "html",
+		url: buptbase.urls.portal_server,
+		async : false,			
+		success : function (result) {
+			buptbase.log("in portal")
+			$('#out-error').hide();
+			$('#in-error').show();
+		},
+		error : function (data) {
+			buptbase.log("out portal")			
+			$('#in-error').hide();
+			$('#out-error').show();
+		}
+	});
+
+}
+
+/**
+ * BUPT-portal环境且未接入校园网时候自动登录首选账号
+ */
+buptnet.BUPT_portal_login = function(){
+	var su = buptnet.GetSuperUser();
+	if (su.username){
+		$.ajax({
+			type: "POST",
+			dataType: "html",
+			url: buptbase.urls.portal_serverin,
+			data: {'user':su.username,'pass':su.password},
+			success : function (result) {
+				buptbase.log("in portal");
+				// 装载首选用户并登陆
+				buptnet.LoadLoginInfo();
+				buptnet.Login();
+				// 切换面板
+				$('#error').hide();
+				$('#fun-panel').show();
+			},
+			error : function (data) {
+				buptbase.log("out portal");		
+			}
+		});
+	} else {
+		$('#inlogin-fail').show();
+	}
+}
+
 // 连接不上
 buptnet.Ajaxfaild = function(){
 	$('#login-panel').hide();
 	$('#fun-panel').hide();
+	buptnet.BUPT_portal_Check();
 	$('#error').fadeIn();
 }
 
@@ -472,7 +521,7 @@ buptnet.LoadUserList = function(){
 /**
  * 绑定一些回调函数
  */
-buptnet.BindButton = function (params) {
+buptnet.BindButton = function () {
 	$('#btn-login').click(buptnet.Login);
 	$('#btn-logoff').click(buptnet.Logoff);
 
@@ -514,6 +563,8 @@ buptnet.BindButton = function (params) {
 	 });
 	// 绑定，模态对话框
 	$('#myModal').on('shown.bs.modal', function () {});
+	//绑定portal下的一键登录
+	$('#btn-inlogin').click(buptnet.BUPT_portal_login);
 }
 
 /**

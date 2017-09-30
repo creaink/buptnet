@@ -112,6 +112,11 @@ h1 {
   text-align: center;
 }
 
-.error-template {padding: 40px 15px;text-align: center;}
-.error-actions {margin-top:15px;margin-bottom:15px;}
-.error-actions .btn { margin-right:10px; }
+.error-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+.error-template button{
+  margin: 20px auto 10px auto;
+}

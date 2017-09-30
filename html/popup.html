@@ -35,7 +35,7 @@
 				<div id="opt" class="col-xs-8 col-xs-offset-2">
 					<div class="form-inline">
 						<div class="btn-group">
-							<button type="button" id="btn-login" class="btn btn-primary ladda-button" data-style="zoom-out">登录</button>
+							<button type="button" id="btn-login" class="btn btn-primary" data-style="zoom-out">登录</button>
 							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 								<span class="caret"></span>
 							</button>
@@ -290,9 +290,16 @@
 					<h1>Oops!</h1>
 					<h2>404 Not Found</h2>
 					<hr>
-					<div class="error-details">
+					<div id="out-error">
 						您当前尚未接入北邮校园网环境
 					</div>
+					<div id="in-error">
+						您当前接入的为BUPT-portal，并且未登录<br> 点击下面的按钮使用首选账户接入校园网并登陆
+						<button type="button" id="btn-inlogin" class="btn btn-primary">接入校园网并登陆</button>					
+					</div>
+					<div class="alert alert-danger" style="display:none" id="inlogin-fail">
+						首选账号为空，请自行接入校园网
+					</div>					
 				</div>
 			</div>
 		<!-- end of 404 -->
