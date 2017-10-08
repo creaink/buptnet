@@ -17,7 +17,7 @@ buptbase.FitBrowser = function () {
 buptbase.FitBrowser();
 
 // debug console输出控制，注释下面的语句将会开启调试记录
-// console.log = function() {}
+console.log = function() {}
 
 
 buptbase.paths = {};
