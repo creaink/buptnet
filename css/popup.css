@@ -25,7 +25,7 @@ h1 {
   margin-top: 15px;
 }
 
-.input-group .glyphicon{
+.input-group .glyphicon {
   top: 0px;
 }
 
@@ -69,20 +69,20 @@ h1 {
   display: none;
 }
 
-#tab-setting .panel-body{
+#tab-setting .panel-body {
   padding: 8px 15px;
 }
 
-#bs-setting td > div{
+#bs-setting td > div {
   margin: 2px auto;
 }
 
-#bk-setting .switch > div{
+#bk-setting .switch > div {
   float: right;
   margin: -5px 0 0 0;
 }
 
-#bs-setting > .panel-heading{
+#bs-setting > .panel-heading {
   background-color: #5e81b5;
 }
 
@@ -94,8 +94,9 @@ h1 {
   width: 100%;
 }
 
-#bk-setting > .panel-heading{
+#bk-setting > .panel-heading {
   background-color: #905e93;
+  border-color: #905e93;
 }
 
 #bk-setting {
@@ -107,7 +108,7 @@ h1 {
   margin-bottom: 0px;
 }
 
-.modal-body > div{
+.modal-body > div {
   margin-top: 10px;
   text-align: center;
 }
@@ -117,6 +118,6 @@ h1 {
   text-align: center;
 }
 
-.error-template button{
+.error-template button {
   margin: 20px auto 10px auto;
 }

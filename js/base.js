@@ -2,14 +2,23 @@
 
 buptbase = {};
 
-// 浏览器不同命名空间兼容，全部转为chrome
-buptbase.FitBrowser = function(){
+/**
+ * 浏览器不同命名空间兼容，全部转为chrome
+ */
+buptbase.FitBrowser = function () {
 	if (chrome.hasOwnProperty('tabs')) {
 		browser = chrome;
 	} else {
 		chrome = browser;
 	}
 }
+
+// 加载本js时候运行以适配不同浏览器
+buptbase.FitBrowser();
+
+// debug console输出控制，注释下面的语句将会开启调试记录
+// console.log = function() {}
+
 
 buptbase.paths = {};
 
@@ -35,104 +44,93 @@ buptbase.urls.testip = 'http://pv.sohu.com/cityjson?ie=utf-8'
 buptbase.urls.portal_server = 'http://10.3.8.214'
 buptbase.urls.portal_serverin = 'http://10.3.8.214/login'
 
-// debug console输出开关
-buptbase.debug = true;
-buptbase.log = function(info){
-	if (buptbase.debug)
-		console.log(info);
-}
-
-buptbase.error = function(info){
-	console.error(info);
-}
-
 /**
  * 获取本地json文件(也可网络请求最好异步)，同步请求
  * @param path json文件地址，相对于base.js的相对路径，如(../info.json)
  * @return json对象
  */
-buptbase.FetchJsonFile = function(path){
-	  var mReq = new XMLHttpRequest();
-	  var data;
-	  mReq.onload = function() {
+buptbase.FetchJsonFile = function (path) {
+	var mReq = new XMLHttpRequest();
+	var data;
+	mReq.onload = function () {
 		data = JSON.parse(this.responseText);
-	  };
-	  mReq.onerror = function() {
-		buptbase.log('Fetch Error', path, err);
-	  };
-	  mReq.open('get', path, false);
-	  mReq.send();
+	};
+	mReq.onerror = function () {
+		console.log('Fetch Error', path, err);
+	};
+	mReq.open('get', path, false);
+	mReq.send();
 
-	  return data;
+	return data;
 }
 
-/** 
+/**
  * 将文本或者json变量生成下载链接
  * @param data 文本或者json变量
  * @param filename 下载保存的名字
  */
-buptbase.SaveData = function(data, filename){
-	if(!data) {
+buptbase.SaveData = function (data, filename) {
+	if (!data) {
 		buptbase.error('buptbase.save: No data');
 		return;
 	}
 
-	if(!filename) filename = 'data.json';
+	if (!filename) filename = 'data.json';
 
-	if(typeof data === "object"){
+	if (typeof data === "object") {
 		data = JSON.stringify(data, undefined, 4);
 	}
 
-	var blob = new Blob([data], {type: 'text/json',endings:'native'}),
-		e	= document.createEvent('MouseEvents'),
-		a	= document.createElement('a');
+	var blob = new Blob([data], { type: 'text/json', endings: 'native' }),
+		e = document.createEvent('MouseEvents'),
+		a = document.createElement('a');
 
 	a.download = filename;
 	a.href = window.URL.createObjectURL(blob);
-	a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':');
+	a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
 	e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 	a.dispatchEvent(e);
- };
+};
 
 /**
  * 获取浏览器及其版本
  * @return json对象
  */
- buptbase.GetBrowserInfo = function (){
+buptbase.GetBrowserInfo = function () {
 	var br = {};
 	var ua = navigator.userAgent.toLowerCase();
 	if (!!window.StyleMedia) {
-		var re =/(edge).*?([\d.]+)/;		
+		var re = /(edge).*?([\d.]+)/;
 	} else {
-		var re =/(firefox|chrome|opera|version).*?([\d.]+)/;
+		var re = /(firefox|chrome|opera|version).*?([\d.]+)/;
 	}
-    var m = ua.match(re);
-    br.browser = m[1].replace(/version/, "'safari");
+	var m = ua.match(re);
+	br.browser = m[1].replace(/version/, "'safari");
 	br.ver = m[2];
 	br.os = navigator.platform;
-    return br;
+	return br;
 }
 
 /**
  * 计算十进制下的显示版本
  * @param flow 原始数据十进制下的存储版本
  */
-buptbase.ConvertFlow = function(flow){
-	if (flow != null){
+buptbase.ConvertFlow = function (flow) {
+	if (flow != null) {
 		var flow0, flow1, flow3;
 		flow0 = flow % 1024;
 		flow1 = flow - flow0;
 		flow0 = flow0 * 1000;
 		flow0 = flow0 - flow0 % 1024;
 		flow3 = '.';
-		if (flow0 / 1024 < 10){
+		if (flow0 / 1024 < 10) {
 			flow3 = '.00';
 		} else {
 			if (flow0 / 1024 < 100) flow3 = '.0';
 		}
 		flow = flow1 / 1024 + flow3 + flow0 / 1024;
 		return parseFloat(flow);
-	}else{
+	} else {
 		return 0;
 	}
 }
@@ -143,13 +141,13 @@ buptbase.ConvertFlow = function(flow){
  * @return JOSN格式数据，daysNow是第几号，minuteSpend当月经过时间
  * 			daysMonth一个月一共多少天，daysLeft当月剩余多少天
  */
-buptbase.getMyTime = function() {
+buptbase.getMyTime = function () {
 	var curDate = new Date();
-	var t={};
+	var t = {};
 	t.daysNow = curDate.getDate();
-	t.minuteSpend = (t.daysNow-1)*24*60 + curDate.getHours()*60 + curDate.getMinutes();
+	t.minuteSpend = (t.daysNow - 1) * 24 * 60 + curDate.getHours() * 60 + curDate.getMinutes();
 	// 被当分母注意0值
-	if (t.minuteSpend == 0){
+	if (t.minuteSpend == 0) {
 		t.minuteSpend = 1;
 	}
 	/* 获取当前月份 */
@@ -162,7 +160,7 @@ buptbase.getMyTime = function() {
 	t.daysLeft = t.daysMonth - t.daysNow;
 
 	// 被当分母注意0值
-	if (t.daysLeft == 0){
+	if (t.daysLeft == 0) {
 		t.daysLeft = 1;
 	}
 	return t;
@@ -175,15 +173,15 @@ buptbase.getMyTime = function() {
  * @param end 结束字符串，未传参默认当做<>补充/
  * @return 截取的中间字符串
  */
-buptbase.GetInner = function(str, start, end){
+buptbase.GetInner = function (str, start, end) {
 	var pos = 0;
-	if (end == undefined){
+	if (end == undefined) {
 		var end = start.replace('<', '</');
 	}
-	if (end == start){
+	if (end == start) {
 		pos = str.indexOf(start);
-		return str.substring(pos, str.indexOf(end, pos + 1)).replace(start,'');
-	}else{
-		return str.substring(str.indexOf(start), str.indexOf(end)).replace(start,'');
+		return str.substring(pos, str.indexOf(end, pos + 1)).replace(start, '');
+	} else {
+		return str.substring(str.indexOf(start), str.indexOf(end)).replace(start, '');
 	}
 }
