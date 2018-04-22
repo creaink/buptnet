@@ -1,8 +1,4 @@
-/// <reference path="C:\Application\Hint\typings\jquery\jquery.d.ts" />
-
-// TODO 减小代码冗余度, 提高可移植性
-// AngularJS ?
-// typescipt ?
+/// <reference path="C:/Application/Hint/jquery/index.d.ts" />
 
 // 在string原型链上添加全部添加
 String.prototype.replaceAll = function (s1, s2) {
@@ -138,6 +134,7 @@ buptnet.BUPT_portal_login = function () {
 			dataType: "html",
 			url: buptbase.urls.portal_serverin,
 			data: { 'user': su.username, 'pass': su.password },
+			timeout: 10 * 1000,
 			success: function (result) {
 				console.log("in portal");
 				// 装载首选用户并登陆
@@ -547,10 +544,6 @@ buptnet.BindButton = function () {
 		buptnet.LoadBaseTab(false, true);
 	});
 
-	$('#btn-cleardynamic').click(function () {
-		buptchart.dynamic_set();
-	});
-
 	$("#limit-item").click(function (item) {
 		var targetID = item.target.attributes.aim.value;
 		var num = $("#limit-num").val();
@@ -736,13 +729,19 @@ buptnet.LoadInfoTab = function () {
 
 	$('.info-username').text(localStorage.getItem('cuser'));
 	$.get(buptbase.urls.testip, function (result, status) {
-		var ipv4 = result.split('= ')[1].replace(';', '');
-		ipv4 = JSON.parse(ipv4);
-		$('.info-eipv4').text(ipv4['cip']);
+		var ipv4 = JSON.parse(result);
+		if (ipv4.data['isp'] == 'XX') {
+			ipv4.data['isp'] = '';
+		}
+		if (ipv4.data['city'] == '北京' || ipv4.data['city'] == 'XX') {
+			ipv4.data['city'] = '';
+		}
+		$('.info-eipv4').text(ipv4.data['ip'] + ' ' + ipv4.data['city'] + ipv4.data['isp']);
 	}, "text");
 	$.get(buptbase.urls.server + buptbase.urls.login, function (result, status) {
 		var info = buptnet.GetScriptData($(result))
-		$('.info-iipv4').text(info['v46ip']);
+		var loc = buptbase.buptIpMap[ info['v46ip'].split('.')[1] ]||'未收录';
+		$('.info-iipv4').text(info['v46ip'] + ' ' + loc);
 		info = info['v6'].replace('[', '').replace(']', '');
 		$('.info-ipv6').text(info);
 	}, "text")

@@ -1,4 +1,4 @@
-/// <reference path="C:\Application\Hint\typings\jquery\jquery.d.ts" />
+/// <reference path="C:/Application/Hint/jquery/index.d.ts" />
 
 // 只有popup有实例时候才会有效
 // var popups = chrome.extension.getViews({type: "popup"});
@@ -280,7 +280,6 @@ bkpage.ContextMenusInit = function () {
  */
 bkpage.LoginListener = function (tabId, changeInfo, tab) {
 	if (changeInfo.status == "complete") {
-		rcc = tab;
 		if (tab.title == "欢迎登录北邮校园网络" || tab.title == "北京邮电大学无线网准入认证") {
 			// 不能直接login会与自动登录造成冲突导致两次登录最后下线的悲剧
 			bkpage.GetNetStatus(true);

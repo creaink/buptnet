@@ -1,4 +1,5 @@
-/// <reference path="C:\Application\Hint\typings\jquery\jquery.d.ts" />
+/// <reference path="C:/Application/Hint/jquery/index.d.ts" />
+/// <reference path="C:/Application/Hint/highcharts/index.d.ts" />
 
 var hashurl = location.hash.replace('#','').split('/');
 /**
@@ -185,7 +186,12 @@ buptchart.activeLastPointToolip = function(chart) {
  */
 buptchart.dynamic_set = function (x, y) {
 	if ($.isEmptyObject(buptchart.dynamic_chart)) {
-		buptchart.dynamic_chart = new Highcharts.Chart('chart-dynamic', buptchart.dynamic_connfig);
+		buptchart.dynamic_chart = new Highcharts.Chart('chart-dynamic', buptchart.dynamic_connfig, function (chart) {
+			// 双击流量曲线清除图表
+            $(chart.container).dblclick(function(){
+				buptchart.dynamic_set();
+            });
+		});
 	}
 	if (x != undefined && y != undefined) {
 		//满足点数后开始滚动
