@@ -30,6 +30,6 @@
     },
     "default_popup": "html/popup.html"
   },
-
+  "update_url": "https://clients2.google.com/service/update2/crx",
   "manifest_version": 2
 }
